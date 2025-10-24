@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - '**.tf'
-      - '.github/workflows/terraform-*'
+      - '.github/workflows/*'
 
 jobs:
   terraform-check:
