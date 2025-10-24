@@ -8,5 +8,5 @@ output "bucket_name" {
 
 output "bucket_regional_domain_name" {
   value       = aws_s3_bucket.static_site.bucket_regional_domain_name
-  description = "S3 bucket regional domain name"
+  description = "S3 bucket regional domain name !"
 }
