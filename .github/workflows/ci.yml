@@ -19,6 +19,11 @@ jobs:
         with:
           terraform_version: 1.6.2  # 安定版。fmtやplanの挙動が安定
 
+      - name: Debug Directory
+        run: |
+          pwd
+          ls -la
+
       - name: Terraform Init
         run: terraform init
 
