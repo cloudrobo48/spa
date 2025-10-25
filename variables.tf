@@ -15,7 +15,7 @@ variable "domain" {
   default = "fieldwork48.com"
 }
 
-variable "bucket_name" {
-  type    = string
-  default = ""
-}
+# variable "bucket_name" {
+#   type    = string
+#   default = ""
+# }
