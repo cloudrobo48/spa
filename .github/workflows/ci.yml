@@ -6,6 +6,11 @@ on:
       - '**.tf'
       - '.github/workflows/*'
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -47,7 +52,7 @@ jobs:
       - name: Run tflint
         working-directory: .
         run: tflint
-        
+
       # 1回目のPlan：CIチェック用（エラー検出用）
       - name: Terraform Plan (check only)
         working-directory: .
