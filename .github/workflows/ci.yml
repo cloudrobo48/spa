@@ -47,14 +47,34 @@ jobs:
       - name: Run tflint
         working-directory: .
         run: tflint
+        
+      # 1回目のPlan：CIチェック用（エラー検出用）
+      - name: Terraform Plan (check only)
+        working-directory: .
+        run: terraform plan
 
-      - name: Terraform Plan
+      # 2回目のPlan：レビュー用（plan.txtに保存）
+      - name: Terraform Plan (for review)
         working-directory: .
         run: terraform plan -no-color > plan.txt
 
-      - name: Upload plan output
-        uses: actions/upload-artifact@v4
+      # PRコメントにPlan内容を投稿（レビュー担当者がPR画面で確認できる）
+      - name: Comment plan on PR
+        uses: actions/github-script@v7
         with:
-          name: terraform-plan
-          path: plan.txt
-          
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('plan.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### Terraform Plan 📦\n\`\`\`\n${plan}\n\`\`\``
+            });
+
+      #（任意）Plan出力をArtifactsに保存（ログ用途）
+      # - name: Upload plan output
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: terraform-plan
+      #     path: plan.txt
