@@ -30,15 +30,15 @@ jobs:
           terraform_version: 1.6.2  # 安定版。fmtやplanの挙動が安定
 
       - name: Terraform Init
-        working-directory: .
+#        working-directory: .
         run: terraform init
 
       - name: Terraform Format Check
-        working-directory: .
+#        working-directory: .
         run: terraform fmt -check -recursive
 
       - name: Terraform Validate
-        working-directory: .
+#        working-directory: .
         run: terraform validate
 
       - name: Install tflint
@@ -50,32 +50,71 @@ jobs:
           tflint --version
 
       - name: Run tflint
-        working-directory: .
+#        working-directory: .
         run: tflint
 
       # 1回目のPlan：CIチェック用（エラー検出用）
       - name: Terraform Plan (check only)
-        working-directory: .
+#        working-directory: .
         run: terraform plan
 
       # 2回目のPlan：レビュー用（plan.txtに保存）
       - name: Terraform Plan (for review)
-        working-directory: .
+#        working-directory: .
         run: terraform plan -no-color > plan.txt
 
-      # PRコメントにPlan内容を投稿（レビュー担当者がPR画面で確認できる）
-      - name: Comment plan on PR
+
+      - name: Comment plan on PR (update if exists)
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const plan = fs.readFileSync('plan.txt', 'utf8');
-            github.rest.issues.createComment({
+            const header = '### Terraform Plan 📦';
+
+            //  既存コメント一覧を取得
+            const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `### Terraform Plan 📦\n\`\`\`\n${plan}\n\`\`\``
             });
+
+            //  Terraform Plan コメントを探す
+            const existing = comments.data.find(c => c.body.startsWith(header));
+
+            const body = `${header}\n\`\`\`\n${plan}\n\`\`\``;
+
+            if (existing) {
+              //  あれば更新
+              await github.rest.issues.updateComment({
+                comment_id: existing.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body,
+              });
+            } else {
+              //  なければ新規投稿
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body,
+              });
+            }
+
+      # # PRコメントにPlan内容を投稿（レビュー担当者がPR画面で確認できる）
+      # - name: Comment plan on PR
+      #   uses: actions/github-script@v7
+      #   with:
+      #     script: |
+      #       const fs = require('fs');
+      #       const plan = fs.readFileSync('plan.txt', 'utf8');
+      #       github.rest.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: `### Terraform Plan 📦\n\`\`\`\n${plan}\n\`\`\``
+      #       });
 
       #（任意）Plan出力をArtifactsに保存（ログ用途）
       # - name: Upload plan output
