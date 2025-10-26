@@ -33,16 +33,16 @@ resource "aws_s3_bucket_policy" "static_site_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-# Grant read access to CloudFront only via the specified OAI.
-# This ensures that the S3 bucket is not publicly accessible and can only be read through CloudFront.
-#        Principal = "*"
+        Sid    = "PublicReadGetObject"
+        Effect = "Allow"
+        # Grant read access to CloudFront only via the specified OAI.
+        # This ensures that the S3 bucket is not publicly accessible and can only be read through CloudFront.
+        #        Principal = "*"
         Principal = {
           AWS = var.cloudfront_oai_arn
         }
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.static_site.arn}/*"
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.static_site.arn}/*"
       }
     ]
   })
