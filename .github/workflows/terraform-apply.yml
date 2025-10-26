@@ -30,3 +30,14 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-1
+
+      - name: Slack通知（Apply成功）
+        uses: slackapi/slack-github-action@v1.23.0
+        continue-on-error: true
+        with:
+          payload: |
+            {
+              "text": "Terraform Apply 成功"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
