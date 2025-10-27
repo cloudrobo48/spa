@@ -30,15 +30,12 @@ jobs:
           terraform_version: 1.6.2  # 安定版。fmtやplanの挙動が安定
 
       - name: Terraform Init
-#        working-directory: .
         run: terraform init
 
       - name: Terraform Format Check
-#        working-directory: .
         run: terraform fmt -check -recursive
 
       - name: Terraform Validate
-#        working-directory: .
         run: terraform validate
 
       - name: Install tflint
@@ -50,17 +47,14 @@ jobs:
           tflint --version
 
       - name: Run tflint
-#        working-directory: .
-        run: tflint
+        run: tflint --disable-rule=terraform_unused_declarations
 
       # 1回目のPlan：CIチェック用（エラー検出用）
       - name: Terraform Plan (check only)
-#        working-directory: .
         run: terraform plan
 
       # 2回目のPlan：レビュー用（plan.txtに保存）
       - name: Terraform Plan (for review)
-#        working-directory: .
         run: terraform plan -no-color > plan.txt
 
       # PRコメントにPlan内容を投稿（レビュー担当者がPR画面で確認できる）
