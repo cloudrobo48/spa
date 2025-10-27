@@ -11,7 +11,7 @@ terraform {
       version = "~>5.0"
     }
   }
-  # backend key は init 時に渡す
+
   backend "s3" {
     bucket         = "terraform-statefile-20251021"
     region         = "ap-northeast-1"
