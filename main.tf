@@ -14,10 +14,11 @@ provider "aws" {
 # ----------------------------------------------------
 # Environment Context (workspace-based)
 # ----------------------------------------------------
-# locals {
-#   env  = terraform.workspace
-#   fqdn = "${local.env}.${var.domain}" # Route53やACMで使う予定
-# }
+locals {
+  env = terraform.workspace
+  #  fqdn = "${local.env}.${var.domain}" # Route53やACMで使う予定
+  fqdn = "${local.env}.${var.subdomain_static}.${var.domain}" # Route53やACMで使う予定
+}
 
 # ----------------------------------------------------
 # S3 Bucket Block for tfsate
@@ -25,6 +26,11 @@ provider "aws" {
 # for tfstate
 resource "aws_s3_bucket" "s3_terraform_statefile" {
   bucket = "terraform-statefile-20251021"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
 }
 
 resource "aws_s3_bucket_versioning" "s3_terraform_statefile_versioning" {
@@ -48,7 +54,13 @@ resource "aws_dynamodb_table" "tf_rock" {
   }
   tags = {
     Name        = "Terraform Lock Table"
-    Environment = var.environment
-    Project     = var.project
+    Environment = local.env
+    #    Environment = var.environment
+    Project = var.project
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
 }

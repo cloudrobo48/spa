@@ -31,7 +31,7 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-
+        
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
@@ -49,13 +49,22 @@ jobs:
       - name: Run tflint
         run: tflint --disable-rule=terraform_unused_declarations
 
+      - name: Determine tfvars file
+        id: vars
+        run: |
+          if [ "${{ github.base_ref }}" = "main" ]; then
+            echo "TFVARS=prod.tfvars" >> $GITHUB_OUTPUT
+          else
+            echo "TFVARS=dev.tfvars" >> $GITHUB_OUTPUT
+          fi
+
       # 1回目のPlan：CIチェック用（エラー検出用）
       - name: Terraform Plan (check only)
-        run: terraform plan
+        run: terraform plan -var-file=${{ steps.vars.outputs.TFVARS }}
 
       # 2回目のPlan：レビュー用（plan.txtに保存）
       - name: Terraform Plan (for review)
-        run: terraform plan -no-color > plan.txt
+        run: terraform plan -no-color -var-file=${{ steps.vars.outputs.TFVARS }} > plan.txt
 
       # PRコメントにPlan内容を投稿（レビュー担当者がPR画面で確認できる）
       - name: Comment plan on PR (update if exists)

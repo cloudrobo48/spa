@@ -50,10 +50,12 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   tags = {
-    Environment = "production"
+    Environment = local.env
+    #    Environment = "production"
   }
 
-  aliases = ["static.fieldwork48.com"]
+  #  aliases = ["static.fieldwork48.com"]
+  aliases = [local.fqdn]
 
   default_root_object = "index.html"
 
