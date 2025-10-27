@@ -10,7 +10,8 @@ module "static_site_bucket" {
   cloudfront_oai_arn = aws_cloudfront_origin_access_identity.oai.iam_arn
   tags = {
     Project     = var.project
-    Environment = var.environment
-    dummy       = "dummy16"
+    Environment = local.env
+    #    Environment = var.environment
+    dummy = "dummy17"
   }
 }

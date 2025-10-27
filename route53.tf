@@ -25,8 +25,9 @@ resource "aws_route53_record" "cert_validation" {
 # for cloudfront
 resource "aws_route53_record" "cloudfront_alias" {
   zone_id = data.aws_route53_zone.route53_existing_zone.zone_id
-  name    = "static.fieldwork48.com"
-  type    = "A"
+  name    = "${local.env}.static.fieldwork48.com"
+  #  name    = "static.fieldwork48.com"
+  type = "A"
 
   alias {
     name                   = aws_cloudfront_distribution.s3_distribution.domain_name

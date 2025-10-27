@@ -2,6 +2,14 @@ name: Terraform Apply
 
 on:
   workflow_dispatch:  # 手動トリガー
+    inputs:
+      environment:
+        description: 'Apply target environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
 
 permissions:
   contents: read
@@ -17,6 +25,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Select workspace
+        run: |
+          terraform workspace select ${{ github.event.inputs.environment }} || terraform workspace new ${{ github.event.inputs.environment }}
+
       - name: Terraform Init
         run: terraform init
         env:
@@ -24,8 +36,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-1
 
+      - name: Determine tfvars file
+        run: echo "TFVARS=${{ github.event.inputs.environment }}.tfvars" >> $GITHUB_ENV
+
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var-file=$TFVARS
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
