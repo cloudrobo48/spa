@@ -13,8 +13,8 @@ terraform {
   }
   backend "s3" {
     bucket = "terraform-statefile-20251021"
-    key    = "terraform/state.tfstate"
-    #    key            = "terraform/${terraform.workspace}/state.tfstate"
+    #    key    = "terraform/state.tfstate"
+    key            = "terraform/${terraform.workspace}/state.tfstate"
     region         = "ap-northeast-1"
     dynamodb_table = "Terraform_LockTable_20251021"
     encrypt        = true
