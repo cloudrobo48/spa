@@ -14,10 +14,10 @@ provider "aws" {
 # ----------------------------------------------------
 # Environment Context (workspace-based)
 # ----------------------------------------------------
-locals {
-  env  = terraform.workspace
-  fqdn = "${local.env}.${var.domain}" # Route53やACMで使う予定
-}
+# locals {
+#   env  = terraform.workspace
+#   fqdn = "${local.env}.${var.domain}" # Route53やACMで使う予定
+# }
 
 # ----------------------------------------------------
 # S3 Bucket Block for tfsate
