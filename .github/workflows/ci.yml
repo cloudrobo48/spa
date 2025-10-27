@@ -30,8 +30,8 @@ jobs:
           terraform_version: 1.6.2  # 安定版。fmtやplanの挙動が安定
 
       - name: Terraform Init
-        run: terraform init -backend-config="key=terraform/dev/state.tfstate"
-
+        run: terraform init
+        
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
