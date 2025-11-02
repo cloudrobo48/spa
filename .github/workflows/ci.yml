@@ -42,14 +42,14 @@ jobs:
             exit 1
           fi
 
-      - name: Determine tfvars and backend key
+      - name: Determine tfvars file
         id: vars
         run: |
           echo "TFVARS=${{ steps.env.outputs.ENV_NAME }}.tfvars" >> $GITHUB_OUTPUT
-          echo "KEY=terraform/${{ steps.env.outputs.ENV_NAME }}/state.tfstate" >> $GITHUB_OUTPUT
+
 
       - name: Terraform Init
-        run: terraform init -backend-config="key=terraform/${{ steps.env.outputs.ENV_NAME }}/state.tfstate"
+        run: terraform init -backend-config="key=terraform/state.tfstate"
 
       - name: Select Workspace
         run: terraform workspace select ${{ steps.env.outputs.ENV_NAME }} || terraform workspace new ${{ steps.env.outputs.ENV_NAME }}
