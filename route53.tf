@@ -6,16 +6,36 @@ data "aws_route53_zone" "route53_existing_zone" {
 }
 
 # for route53 certification
+# resource "aws_route53_record" "cert_validation" {
+
+#   for_each = {
+#     for idx, dvo in aws_acm_certificate.virginia_cert.domain_validation_options :
+#     join("-", [tostring(idx), dvo.domain_name]) => {
+#       name   = dvo.resource_record_name
+#       type   = dvo.resource_record_type
+#       record = dvo.resource_record_value
+#     }
+#   }
+
+#   zone_id = data.aws_route53_zone.route53_existing_zone.zone_id
+#   name    = each.value.name
+#   type    = each.value.type
+#   records = [each.value.record]
+#   ttl     = 60
+# }
+
 resource "aws_route53_record" "cert_validation" {
+
   for_each = {
-    for dvo in aws_acm_certificate.virginia_cert.domain_validation_options : dvo.domain_name => {
+    for dvo in distinct(aws_acm_certificate.virginia_cert.domain_validation_options) :
+    dvo.resource_record_name => {
       name   = dvo.resource_record_name
       type   = dvo.resource_record_type
       record = dvo.resource_record_value
     }
   }
 
-  zone_id = data.aws_route53_zone.route53_existing_zone.id
+  zone_id = data.aws_route53_zone.route53_existing_zone.zone_id
   name    = each.value.name
   type    = each.value.type
   records = [each.value.record]
@@ -26,7 +46,7 @@ resource "aws_route53_record" "cert_validation" {
 resource "aws_route53_record" "cloudfront_alias" {
   zone_id = data.aws_route53_zone.route53_existing_zone.zone_id
   name    = "${local.env}.static.fieldwork48.com"
-  #  name    = "static.fieldwork48.com"
+
   type = "A"
 
   alias {
@@ -41,5 +61,3 @@ resource "aws_route53_record" "cloudfront_alias" {
 # record name : fieldwork48.com
 # type : A
 # alias : Yes
-
-

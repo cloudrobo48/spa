@@ -7,7 +7,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~>5.0"
+      version = "~> 6.0"
     }
   }
 
@@ -16,6 +16,6 @@ terraform {
     region         = "ap-northeast-1"
     dynamodb_table = "Terraform_LockTable_20251021"
     encrypt        = true
-    key            = "terraform/dev/state.tfstate"
+    key            = "terraform/state.tfstate"
   }
 }
