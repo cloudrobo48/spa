@@ -26,3 +26,18 @@ variable "subdomain_static" {
   }
 }
 
+# AWS Account ID used for OIDC trust policy.
+# This is NOT a secret. It's safe to include in public repositories.
+variable "account_id" {
+  description = "AWSアカウントID（OIDC用）"
+  type        = string
+  default     = "903636036611"
+}
+
+# GitHub repository name used in OIDC condition.
+# This is also public information.
+variable "repo_name" {
+  description = "GitHubリポジトリ名（例: your-org/your-repo）"
+  type        = string
+  default     = "cloudrobo48/spa"
+}

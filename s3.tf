@@ -14,3 +14,17 @@ module "static_site_bucket" {
     dummy       = "dummy04"
   }
 }
+
+# ----------------------------------------------------
+# S3 Bucket Block for Apply Log
+# ----------------------------------------------------
+module "apply_log_bucket" {
+  source          = "./modules/apply_log_bucket"
+  bucket_name     = "my-apply-logs-${local.env}"
+  environment     = local.env
+  expiration_days = 30
+  tags = {
+    Project     = var.project
+    Environment = local.env
+  }
+}
