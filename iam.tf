@@ -43,7 +43,7 @@ resource "aws_iam_policy" "s3_put_only" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["s3:PutObject"]
-      Resource = "arn:aws:s3:::terraform-apply-logs/*"
+      Resource = "arn:aws:s3:::my-apply-logs-${local.env}/*"
     }]
   })
 }
