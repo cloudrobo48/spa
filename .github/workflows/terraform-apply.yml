@@ -14,11 +14,20 @@ on:
 permissions:
   contents: read
 
+env:  # ✅ グローバルにAWS認証を定義（全ステップに自動適用）
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ap-northeast-1
+
 jobs:
   terraform-apply:
     runs-on: ubuntu-latest
     env:
       ENV_NAME: ${{ github.event.inputs.environment }}
+
+    concurrency:  # ✅ Applyの排他制御（同じ環境で同時実行を防止）
+      group: terraform-apply-${{ github.event.inputs.environment }}
+      cancel-in-progress: true
 
     steps:
       - name: Checkout
@@ -31,20 +40,14 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -backend-config="key=terraform/state.tfstate"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ap-northeast-1
+
 
       - name: Select Workspace
         run: terraform workspace select $ENV_NAME || terraform workspace new $ENV_NAME
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -var-file=${ENV_NAME}.tfvars
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ap-northeast-1
+
 
       - name: Slack通知（Apply成功）
         uses: slackapi/slack-github-action@v1.23.0
@@ -52,7 +55,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "Terraform Apply 成功（${{ github.event.inputs.environment }}）"
+              "text": "✅ Terraform Apply 成功 🎉\n📦 環境: ${{ github.event.inputs.environment }}\n👤 実行者: ${{ github.actor }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
