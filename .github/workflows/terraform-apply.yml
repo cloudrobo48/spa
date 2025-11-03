@@ -39,13 +39,22 @@ jobs:
       - name: Terraform Init
         run: terraform init -backend-config="key=terraform/state.tfstate"
 
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::903636036611:role/github-apply-log-writer
+          aws-region: ap-northeast-1
+
+
 
       - name: Select Workspace
         run: terraform workspace select $ENV_NAME || terraform workspace new $ENV_NAME
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var-file=${ENV_NAME}.tfvars
+        run: terraform apply -auto-approve -var-file=${ENV_NAME}.tfvars > apply.log
 
+      - name: Upload apply log to S3
+        run: aws s3 cp apply.log s3://terraform-apply-logs/${{ github.run_id }}-${{ github.event.inputs.environment }}.log
 
       - name: Slack通知（Apply成功）
         uses: slackapi/slack-github-action@v1.23.0
