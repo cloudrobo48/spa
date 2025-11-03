@@ -94,4 +94,4 @@ jobs:
           aws-region: ap-northeast-1
 
       - name: Upload apply log to S3
-        run: aws s3 cp apply.log s3://terraform-apply-logs/${{ github.run_id }}-${{ needs.terraform-apply.outputs.environment }}.log
+        run: aws s3 cp apply.log s3://my-apply-logs-dev/${{ github.run_id }}-${{ needs.terraform-apply.outputs.environment }}.log
