@@ -2,10 +2,10 @@
 # S3 bucket Block
 # ----------------------------------------------------
 resource "aws_s3_bucket" "apply_log_b" {
-  bucket = var.bucket_name
+  bucket        = var.bucket_name
   force_destroy = true
 
-  tags   = var.tags
+  tags = var.tags
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "log_lifecycle" {
