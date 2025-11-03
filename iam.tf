@@ -23,7 +23,7 @@ resource "aws_iam_role" "apply_log_writer" {
     Statement = [{
       Effect = "Allow"
       Principal = {
-        Federated = "arn:aws:iam::${var.account_id}:oidc-provider/token.actions.githubusercontent.com"
+        Federated = aws_iam_openid_connect_provider.github.arn
       }
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
@@ -53,4 +53,15 @@ resource "aws_iam_role_policy_attachment" "attach_s3_put" {
   policy_arn = aws_iam_policy.s3_put_only.arn
 }
 
+resource "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com"
+
+  client_id_list = [
+    "sts.amazonaws.com"
+  ]
+
+  thumbprint_list = [
+    "6938fd4d98c6f0faabf4b82c5e3b7e1e6d1e0e3c" # GitHubのOIDC用Thumbprint（2025年現在）
+  ]
+}
 
