@@ -14,16 +14,14 @@ on:
 permissions:
   contents: read
 
-env:  # ✅ グローバルにAWS認証を定義（全ステップに自動適用）
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_REGION: ap-northeast-1
-
 jobs:
   terraform-apply:
     runs-on: ubuntu-latest
     env:
       ENV_NAME: ${{ github.event.inputs.environment }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ap-northeast-1
 
     concurrency:  # ✅ Applyの排他制御（同じ環境で同時実行を防止）
       group: terraform-apply-${{ github.event.inputs.environment }}
