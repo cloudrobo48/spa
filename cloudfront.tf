@@ -51,7 +51,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   tags = {
     Environment = local.env
-    #    Environment = "production"
+
   }
 
   #  aliases = ["static.fieldwork48.com"]

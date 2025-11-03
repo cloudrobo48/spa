@@ -18,6 +18,11 @@ variable "domain" {
 }
 
 variable "subdomain_static" {
-  type    = string
-  default = "static"
+  type = string
+
+  validation {
+    condition     = length(var.subdomain_static) > 0
+    error_message = "subdomain_static must not be empty"
+  }
 }
+

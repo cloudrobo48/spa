@@ -11,7 +11,6 @@ module "static_site_bucket" {
   tags = {
     Project     = var.project
     Environment = local.env
-    #    Environment = var.environment
-    dummy = "dummy18"
+    dummy       = "dummy01"
   }
 }

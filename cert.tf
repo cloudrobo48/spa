@@ -4,17 +4,16 @@
 # for virginia region
 resource "aws_acm_certificate" "virginia_cert" {
   provider = aws.virginia
-  #  domain_name       = "*.${var.domain}"
-  #  domain_name       = "*.${local.fqdn}"
+
   domain_name       = "*.${var.subdomain_static}.${var.domain}"
   validation_method = "DNS"
 
   tags = {
     Name = "${var.project}-${local.env}-wildcard-sslcert"
-    #    Name    = "${var.project}-${var.environment}-wildcard-sslcert"
+
     Project = var.project
     Env     = local.env
-    #    Env = var.environment
+
   }
   lifecycle {
     create_before_destroy = true
@@ -38,5 +37,6 @@ resource "aws_acm_certificate_validation" "cert_validation" {
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 
   depends_on = [aws_route53_record.cert_validation]
+
 }
 

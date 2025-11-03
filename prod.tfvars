@@ -1,2 +1,2 @@
 # prod.tfvars
-subdomain_static = "prod"
+subdomain_static = "production"

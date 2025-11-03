@@ -1,2 +1,2 @@
 # dev.tfvars
-subdomain_static = "static"
+subdomain_static = "development"

@@ -55,8 +55,7 @@ resource "aws_dynamodb_table" "tf_rock" {
   tags = {
     Name        = "Terraform Lock Table"
     Environment = local.env
-    #    Environment = var.environment
-    Project = var.project
+    Project     = var.project
   }
 
   lifecycle {

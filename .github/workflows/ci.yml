@@ -27,11 +27,34 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.6.2  # 安定版。fmtやplanの挙動が安定
+          terraform_version: 1.13.4
+
+      - name: Determine environment from PR label
+        id: env
+        run: |
+          LABELS=$(jq -r '.pull_request.labels[].name' "$GITHUB_EVENT_PATH")
+          if echo "$LABELS" | grep -q "env:dev"; then
+            echo "ENV_NAME=dev" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "env:prod"; then
+            echo "ENV_NAME=prod" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Invalid or missing env label. Use 'env:dev' or 'env:prod'."
+            exit 1
+          fi
+
+      - name: Determine tfvars file
+        id: vars
+        run: |
+          echo "TFVARS=${{ steps.env.outputs.ENV_NAME }}.tfvars" >> $GITHUB_OUTPUT
+
 
       - name: Terraform Init
-        run: terraform init
-        
+        run: terraform init -backend-config="key=terraform/state.tfstate"
+
+      - name: Select Workspace
+        run: terraform workspace select ${{ steps.env.outputs.ENV_NAME }} || terraform workspace new ${{ steps.env.outputs.ENV_NAME }}
+
+
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
@@ -49,24 +72,15 @@ jobs:
       - name: Run tflint
         run: tflint --disable-rule=terraform_unused_declarations
 
-      - name: Determine tfvars file
-        id: vars
-        run: |
-          if [ "${{ github.base_ref }}" = "main" ]; then
-            echo "TFVARS=prod.tfvars" >> $GITHUB_OUTPUT
-          else
-            echo "TFVARS=dev.tfvars" >> $GITHUB_OUTPUT
-          fi
 
-      # 1回目のPlan：CIチェック用（エラー検出用）
       - name: Terraform Plan (check only)
         run: terraform plan -var-file=${{ steps.vars.outputs.TFVARS }}
 
-      # 2回目のPlan：レビュー用（plan.txtに保存）
+
       - name: Terraform Plan (for review)
         run: terraform plan -no-color -var-file=${{ steps.vars.outputs.TFVARS }} > plan.txt
 
-      # PRコメントにPlan内容を投稿（レビュー担当者がPR画面で確認できる）
+
       - name: Comment plan on PR (update if exists)
         uses: actions/github-script@v7
         with:
@@ -75,20 +89,20 @@ jobs:
             const plan = fs.readFileSync('plan.txt', 'utf8');
             const header = '### Terraform Plan 📦';
 
-            //  既存コメント一覧を取得
+
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
 
-            //  Terraform Plan コメントを探す
+
             const existing = comments.data.find(c => c.body.startsWith(header));
 
             const body = `${header}\n\`\`\`\n${plan}\n\`\`\``;
 
             if (existing) {
-              //  あれば更新
+
               await github.rest.issues.updateComment({
                 comment_id: existing.id,
                 owner: context.repo.owner,
@@ -96,7 +110,7 @@ jobs:
                 body: body,
               });
             } else {
-              //  なければ新規投稿
+
               await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
@@ -104,10 +118,3 @@ jobs:
                 body: body,
               });
             }
-
-      #（任意）Plan出力をArtifactsに保存（ログ用途）
-      # - name: Upload plan output
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: terraform-plan
-      #     path: plan.txt
