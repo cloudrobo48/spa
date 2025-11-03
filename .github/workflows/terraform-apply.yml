@@ -95,3 +95,15 @@ jobs:
 
       - name: Upload apply log to S3
         run: aws s3 cp apply.log s3://my-apply-logs-dev/${{ github.run_id }}-${{ needs.terraform-apply.outputs.environment }}.log
+
+      - name: Slack通知（Applyログアップロード完了）
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "📄 ApplyログをS3に保存しました\n🔗 https://my-apply-logs-${{ needs.terraform-apply.outputs.environment }}.s3.ap-northeast-1.amazonaws.com/${{ github.run_id }}-${{ needs.terraform-apply.outputs.environment }}.log"
+            }
+
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
