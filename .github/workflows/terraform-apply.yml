@@ -1,7 +1,7 @@
 name: Terraform Apply
 
 on:
-  workflow_dispatch:  # 手動トリガー
+  workflow_dispatch:
     inputs:
       environment:
         description: 'Apply target environment'
@@ -17,6 +17,8 @@ permissions:
 jobs:
   terraform-apply:
     runs-on: ubuntu-latest
+    env:
+      ENV_NAME: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout
@@ -27,22 +29,18 @@ jobs:
         with:
           terraform_version: 1.13.4
 
-      - name: Select workspace
-        run: |
-          terraform workspace select ${{ github.event.inputs.environment }} || terraform workspace new ${{ github.event.inputs.environment }}
-
       - name: Terraform Init
-        run: terraform init -backend-config="key=terraform/${{ github.event.inputs.environment }}/state.tfstate"
+        run: terraform init -backend-config="key=terraform/state.tfstate"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ap-northeast-1
 
-      - name: Determine tfvars file
-        run: echo "TFVARS=${{ github.event.inputs.environment }}.tfvars" >> $GITHUB_ENV
+      - name: Select Workspace
+        run: terraform workspace select $ENV_NAME || terraform workspace new $ENV_NAME
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var-file=$TFVARS
+        run: terraform apply -auto-approve -var-file=${ENV_NAME}.tfvars
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -54,7 +52,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "Terraform Apply 成功"
+              "text": "Terraform Apply 成功（${{ github.event.inputs.environment }}）"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
