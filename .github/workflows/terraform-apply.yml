@@ -49,7 +49,7 @@ jobs:
         run: terraform apply -auto-approve -var-file=${ENV_NAME}.tfvars > apply.log
 
       - name: Upload apply log artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: apply-log
           path: apply.log
