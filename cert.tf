@@ -5,7 +5,8 @@
 resource "aws_acm_certificate" "virginia_cert" {
   provider = aws.virginia
 
-  domain_name       = "*.${var.subdomain_static}.${var.domain}"
+  # domain_name       = "*.${var.subdomain_static}.${var.domain}"
+  domain_name       = "${var.subdomain_static}.${var.domain}"
   validation_method = "DNS"
 
   tags = {
