@@ -15,9 +15,9 @@ provider "aws" {
 # Environment Context (workspace-based)
 # ----------------------------------------------------
 locals {
-  env = terraform.workspace
-  #  fqdn = "${local.env}.${var.domain}" # Route53やACMで使う予定
-  fqdn = "${local.env}.${var.subdomain_static}.${var.domain}" # Route53やACMで使う予定
+  env  = terraform.workspace
+  fqdn = "${var.subdomain_static}.${var.domain}" # Route53やACMで使う予定
+  #  fqdn = "${local.env}.${var.subdomain_static}.${var.domain}" # Route53やACMで使う予定
 }
 
 # ----------------------------------------------------
