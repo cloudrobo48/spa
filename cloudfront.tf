@@ -54,8 +54,8 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   }
 
-  #  aliases = ["static.fieldwork48.com"]
-  aliases = [local.fqdn]
+  aliases = ["static.fieldwork48.com"]
+  # aliases = [local.fqdn]
 
   default_root_object = "index.html"
 
